@@ -1,37 +1,36 @@
 # Xray VLESS + WebSocket for Railway
 
-This repository runs Xray behind Railway's public HTTPS networking. Railway terminates TLS; Xray listens on the internal `$PORT` using plain WebSocket.
+This repository runs Xray behind Railway's public HTTPS networking. Railway terminates TLS; Xray listens on Railway's internal `PORT` using plain WebSocket. The actual UUID and WebSocket path are read from Railway Variables, not stored in Git.
 
-## Required edits before deploying
-
-Edit `config.json` and replace:
-
-- `REPLACE_WITH_YOUR_UUID` with a UUID generated for your client.
-- `REPLACE_WITH_YOUR_PATH` with a private WebSocket path, including the leading slash (example: `/a-random-path`).
-
-Do not commit actual secrets to a public repository. Because this repository is public, change the placeholders before use and keep the UUID/path private. For stronger privacy, change the repository to private after setup.
-
-## Deploy on Railway
+## Deploy
 
 1. In Railway, create a new project/service from the GitHub repository `xiaolai778/xray-railway`.
 2. Railway should build from the included Dockerfile.
-3. In service Settings → Networking, generate a Railway domain (or attach your own domain).
-4. Wait for the deployment to be healthy.
+3. Open the service's Variables tab and add:
+   - `UUID`: a newly generated UUID, such as one generated locally with PowerShell `[guid]::NewGuid()`.
+   - `WS_PATH`: a private path that starts with a slash, such as `/a-random-path-7Kp9`.
+4. Railway supplies `PORT` automatically; do not set it yourself unless Railway's UI specifically requires it.
+5. In Settings → Networking, generate a Railway domain or attach your own domain.
+6. Wait for the deployment to start successfully and check the deploy logs.
+
+Never paste your UUID into a public source file. Keep the UUID and WS_PATH private and do not share them publicly.
 
 ## Client settings
 
 - Protocol: VLESS
 - Address: generated Railway domain (hostname only)
 - Port: 443
-- UUID: same value as `config.json`
+- UUID: value of Railway variable `UUID`
 - Encryption: none
 - Transport: WebSocket
-- Path: same value as `config.json`
+- Path: value of Railway variable `WS_PATH`
 - TLS: enabled
 - SNI/server name: same hostname
 
 Xray uses `security: none` intentionally because TLS is terminated by Railway's public HTTPS endpoint. Do not configure Xray certificates for this setup.
 
-## Notes
+## Troubleshooting
 
-This setup assumes Railway's public networking forwards WebSocket traffic to the service port. The generated hostname and deployment logs should be checked after the first deploy. Platform policies, availability, and service limits may change.
+- If the deploy exits immediately, check that `UUID` is a valid 36-character UUID and `WS_PATH` starts with `/`.
+- If the domain is reachable but the client cannot connect, verify the domain, TLS, SNI and WebSocket path match exactly.
+- Platform policies, availability, and service limits may change.
