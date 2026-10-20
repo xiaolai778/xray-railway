@@ -10,7 +10,7 @@
       "settings": {
         "clients": [
           {
-            "id": "REPLACE_WITH_YOUR_UUID",
+            "id": "__CLIENT_UUID__",
             "email": "railway-user"
           }
         ],
@@ -20,7 +20,7 @@
         "network": "ws",
         "security": "none",
         "wsSettings": {
-          "path": "/REPLACE_WITH_YOUR_PATH"
+          "path": "__WS_PATH__"
         }
       }
     }
